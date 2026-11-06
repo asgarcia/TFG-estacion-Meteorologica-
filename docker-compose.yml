@@ -6,7 +6,7 @@ services:
     image: httpd:2.4
     restart:  unless-stopped
     volumes:
-      - /home/user/weewxdock/data/public_html:/usr/local/apache2/htdocs
+      - ./data/public_html:/usr/local/apache2/htdocs
     ports:
       - "8080:80"
 
@@ -19,17 +19,27 @@ services:
       MYSQL_USER: weewx
       MYSQL_PASSWORD: weewx
     volumes:
-      - /home/user/weewxdock/data/db_data:/var/lib/mysql
+      - ./data/db_data:/var/lib/mysql
 
   weewx:
     image: felddy/weewx:5
     restart: unless-stopped
     volumes:
-      - /home/user/weewxdock/data:/data
-      - /home/user/weewxdock/data/weewx.conf:/home/weewx/weewx.conf
-      - /home/user/weewxdock/data/public_html:/home/weewx/public_html
+      - ./data:/data
+      - ./data/weewx.conf:/home/weewx/weewx.conf
+      - ./data/public_html:/home/weewx/public_html
     ports:
-      - "21"
+      - "21:21"
     devices:
       - "/dev/bus/usb:/dev/bus/usb"
     privileged: true
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+    depends_on:
+      - db
